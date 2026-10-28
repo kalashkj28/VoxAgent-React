@@ -1,89 +1,148 @@
-# VoxAgent - React + TypeScript Web Client 🎙️
+# VoxAgent - Full-Stack Voice AI Agent 🎙️
 
-A production-grade, real-time voice AI interface built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Lucide Icons** for the VoxAgent backend.
+A production-grade, real-time Voice AI system featuring a **Python (FastAPI + LangGraph) AI backend** and a modern **React 19 + TypeScript + Tailwind CSS v4 web interface**.
 
-Designed by **Kalash Jain**.
+Built by **Kalash Jain**.
 
 ---
 
-## ⚡ Features
+## 🏗️ Architecture
 
-- **Full-Duplex Dual WebSockets**: Seamlessly connects to `/ws/voice` (binary audio streaming) and `/ws/chat` (text streaming).
-- **Web Audio API & Live Waveform**: Real-time microphone input volume monitoring with dynamic frequency visualizer bars.
-- **VAD Silence Detection**: Automatic cutoff after 2.5 seconds of silence for natural conversation flow.
-- **Hands-Free Auto Mode**: Continuous voice conversation loop (speaks -> finishes -> automatically records again).
-- **Barge-In / Interruption**: Interrupts assistant speech immediately when the user speaks or types.
-- **Type-Safe WS Contracts**: Strict TypeScript interfaces for all STT, LLM, TTS, latency, and error events.
-- **Real-Time Latency HUD**: Live display of STT (Groq Whisper), LLM (Gemini), and TTS (Edge-TTS) round-trip durations.
-- **Knowledge Base PDF Management**: Upload documents with real-time indexing progress bar and instant FAISS vector search.
-- **Glassmorphism UI**: Floating orbs, backdrop blur, typewriter streaming text, and responsive layout.
-- **Configurable Backend**: Works out-of-the-box with `http://localhost:8000` or deployed production backends (e.g. Render).
+```
+                       ┌───────────────────────────────┐
+                       │   React 19 + TypeScript UI    │
+                       │   (Tailwind v4, Web Audio)    │
+                       └──────────────┬────────────────┘
+                                      │
+                   Dual WebSockets (/ws/voice, /ws/chat)
+                                      │
+                       ┌──────────────▼────────────────┐
+                       │        FastAPI Server         │
+                       └──────────────┬────────────────┘
+                                      │
+       ┌──────────────────────────────┼──────────────────────────────┐
+       │                              │                              │
+┌──────▼──────┐               ┌──────▼──────┐               ┌──────▼──────┐
+│ Groq Whisper│               │  LangGraph  │               │  Edge-TTS   │
+│   (STT)     │               │ (9 AI Tools)│               │ (w/ gTTS)   │
+└─────────────┘               └──────┬──────┘               └─────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+             ┌──────▼──────┐                   ┌──────▼──────┐
+             │ Gemini 3.5  │                   │ FAISS RAG + │
+             │ Flash Lite  │                   │ SQLite Cache│
+             └─────────────┘                   └─────────────┘
+```
+
+---
+
+## ⚡ What Makes This Project Special
+
+| Feature | Original VoxAgent | This Project (VoxAgent Full-Stack) |
+|---|---|---|
+| **Frontend Framework** | Vanilla HTML / JS / CSS | **React 19 + TypeScript + Vite** |
+| **Styling** | Custom static CSS | **Tailwind CSS v4 + Glassmorphism** |
+| **Icons** | Emojis | **Lucide Icons** |
+| **State Management** | Global JS variables | **Custom React Hooks (`useVoiceAgent`, `useAudioRecorder`)** |
+| **Type Safety** | None (dynamic JS) | **Strict TypeScript contracts for all WS payloads** |
+| **Audio Visualizer** | Simple CSS pulse | **Real-time Web Audio API frequency waveform** |
+| **Backend** | FastAPI + LangGraph | **FastAPI + LangGraph (Identical AI Pipeline)** |
 
 ---
 
 ## 🛠️ Tech Stack
 
+### Frontend (`/frontend`)
 - **Framework**: React 19 + TypeScript
-- **Bundler**: Vite
-- **Styling**: Tailwind CSS v4 + Custom Glassmorphism CSS
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS v4 + Glassmorphism
 - **Icons**: Lucide React
 - **Audio**: Web Audio API (`AudioContext`, `AnalyserNode`, `MediaRecorder`)
+
+### Backend (`/backend`)
+- **Server**: FastAPI + WebSockets + Uvicorn
+- **AI Brain**: Google Gemini 3.5 Flash Lite
+- **STT**: Groq Whisper large-v3 (~500ms latency)
+- **TTS**: Microsoft Edge-TTS with automatic gTTS fallback
+- **Orchestration**: LangGraph (StateGraph with conditional routing)
+- **RAG & Search**: FAISS + DuckDuckGo
+- **Memory & Cache**: SQLite + Lightweight Jaccard semantic cache
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
-```bash
-npm install
+### 1. Start Backend
+
+Open PowerShell in the `backend` directory:
+
+```powershell
+cd backend
+
+# Create virtual environment and install dependencies
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt   # or uv sync
+
+# Start FastAPI server
+$env:PYTHONUTF8=1
+.\.venv\Scripts\python.exe -m uvicorn app.server:app --reload
 ```
 
-### 2. Start Development Server
-```bash
-npm run dev
-```
-The app will launch on `http://localhost:3000`.
-
-### 3. Connect to VoxAgent Backend
-- Ensure your VoxAgent FastAPI backend is running on `http://localhost:8000`.
-- The Vite development server automatically proxies `/ws` and `/api` to `http://localhost:8000`.
-- Or click the **Settings ⚙️** icon in the header to point to any custom URL (e.g. your Render deployment `https://voxagent-fzxj.onrender.com`).
-
-### 4. Build for Production
-```bash
-npm run build
-```
-Static production assets will be generated in `dist/`.
+Backend will be active at: `http://localhost:8000`
 
 ---
 
-## 📁 Project Structure
+### 2. Start Frontend
+
+Open another PowerShell window in the `frontend` directory:
+
+```powershell
+cd frontend
+
+# Install node dependencies
+npm install
+
+# Start Vite dev server
+npm run dev
+```
+
+Frontend will open at: **`http://localhost:3000`**
+
+---
+
+## 📁 Repository Structure
 
 ```
 voxagent-react/
-├── src/
-│   ├── types/
-│   │   └── voxagent.ts          # Type-safe WebSocket contracts & data models
-│   ├── hooks/
-│   │   ├── useVoiceAgent.ts     # State machine for sockets, streaming, barge-in, metrics
-│   │   └── useAudioRecorder.ts  # Web Audio API, silence detection, live visualizer
-│   ├── services/
-│   │   └── kbApi.ts             # Knowledge Base REST API client
-│   ├── components/
-│   │   ├── Header.tsx           # Branding, connection badge, backend settings
-│   │   ├── ChatPanel.tsx        # Chat window with auto-scroll & typing indicator
-│   │   ├── MessageBubble.tsx    # Styled user, bot (streaming), and system bubbles
-│   │   ├── ChatInput.tsx        # Text input & send button
-│   │   ├── Controls.tsx         # Mic button with pulse ring, auto-mode, voice toggle
-│   │   ├── Visualizer.tsx       # Real-time audio waveform animation
-│   │   ├── LatencyHUD.tsx       # Latency cards (STT, LLM, TTS, Total)
-│   │   ├── KnowledgeBase.tsx    # PDF upload progress & indexed files list
-│   │   └── Watermark.tsx        # Creator portfolio links
-│   ├── App.tsx                  # Root layout & animated backdrop
-│   ├── index.css                # Tailwind CSS v4 + glassmorphism theme
-│   └── main.tsx                 # Entry point
-├── vite.config.ts               # Vite configuration + API/WS proxy
-└── package.json
+├── backend/
+│   ├── app/
+│   │   ├── agent/            # LangGraph stategraph & intent classification
+│   │   ├── memory/           # SQLite store & semantic cache
+│   │   ├── rag/              # FAISS document retriever
+│   │   ├── tools/            # 9 agentic tools (weather, time, web search, appointments)
+│   │   ├── tts/              # Edge-TTS + gTTS dual fallback
+│   │   ├── config.py         # Model & API keys configuration
+│   │   └── server.py         # FastAPI WebSockets (/ws/voice, /ws/chat) & REST
+│   ├── data/                 # SQLite databases
+│   ├── knowledge_base/       # Uploaded PDF documents
+│   ├── pyproject.toml        # Python project metadata
+│   └── Dockerfile            # Container deployment specification
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # ChatPanel, Controls, LatencyHUD, KnowledgeBase, Visualizer
+│   │   ├── hooks/            # useVoiceAgent, useAudioRecorder
+│   │   ├── services/         # kbApi service
+│   │   ├── types/            # TypeScript WS event definitions
+│   │   ├── App.tsx           # Main application view
+│   │   └── index.css         # Tailwind v4 styles & animations
+│   ├── package.json          # Node dependencies
+│   └── vite.config.ts        # Vite configuration & proxy
+│
+├── .gitignore
+└── README.md
 ```
 
 ---
