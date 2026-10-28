@@ -36,6 +36,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [metrics, setMetrics] = useState<LatencyMetrics>({
     stt_ms: null,
     llm_ms: null,
@@ -49,6 +50,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
   const autoModeRef = useRef(autoMode);
   const ttsEnabledRef = useRef(ttsEnabled);
   const reconnectTimerRef = useRef<number | null>(null);
+  const streamingIntervalRef = useRef<number | null>(null);
 
   autoModeRef.current = autoMode;
   ttsEnabledRef.current = ttsEnabled;
@@ -75,6 +77,13 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
 
   // Interruption / Barge-in
   const interrupt = useCallback(() => {
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current);
+      streamingIntervalRef.current = null;
+    }
+    setIsTyping(false);
+    setIsStreaming(false);
+
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current.currentTime = 0;
@@ -144,7 +153,13 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
 
   // Streaming typewriter effect for bot responses
   const streamBotMessage = useCallback((fullText: string) => {
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current);
+      streamingIntervalRef.current = null;
+    }
+
     setIsTyping(false);
+    setIsStreaming(true);
     const messageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     setMessages((prev) => [
@@ -159,7 +174,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
     ]);
 
     let index = 0;
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       index += 2;
       if (index >= fullText.length) {
         setMessages((prev) =>
@@ -168,6 +183,8 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
           )
         );
         clearInterval(interval);
+        streamingIntervalRef.current = null;
+        setIsStreaming(false);
       } else {
         setMessages((prev) =>
           prev.map((m) =>
@@ -176,6 +193,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
         );
       }
     }, 16);
+    streamingIntervalRef.current = interval;
   }, []);
 
   // Handle incoming WebSocket messages
@@ -211,6 +229,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
 
         case 'error':
           setIsTyping(false);
+          setIsStreaming(false);
           addMessage(data.message, 'system');
           setConnectionState('connected');
           break;
@@ -300,7 +319,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
 
   // Send Text Message
   const sendTextMessage = useCallback((text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isTyping || isStreaming) return;
     interrupt();
 
     addMessage(text, 'user');
@@ -314,7 +333,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
       addMessage('Chat server disconnected. Click retry.', 'system');
       setConnectionState('disconnected');
     }
-  }, [addMessage, interrupt]);
+  }, [addMessage, interrupt, isStreaming, isTyping]);
 
   // Connect WebSockets
   const connectSockets = useCallback(() => {
@@ -373,6 +392,9 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
       }
+      if (streamingIntervalRef.current) {
+        clearInterval(streamingIntervalRef.current);
+      }
       voiceWsRef.current?.close();
       chatWsRef.current?.close();
       if (currentAudioRef.current) {
@@ -386,6 +408,7 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
     connectionState,
     messages,
     isTyping,
+    isStreaming,
     metrics,
     ttsEnabled,
     autoMode,
