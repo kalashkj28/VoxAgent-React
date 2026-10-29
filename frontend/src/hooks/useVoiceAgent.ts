@@ -67,8 +67,15 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
 
   // Derive WebSocket base URL
   const getWsBaseUrl = useCallback(() => {
-    if (backendUrl) {
-      const clean = backendUrl.replace(/^http/, 'ws');
+    let target = backendUrl;
+    if (!target && typeof window !== 'undefined') {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal) {
+        target = 'https://voxagent-fzxj.onrender.com';
+      }
+    }
+    if (target) {
+      const clean = target.replace(/^http/, 'ws');
       return clean.replace(/\/$/, '');
     }
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
