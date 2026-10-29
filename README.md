@@ -47,7 +47,7 @@ Built by **Kalash Jain**.
 | **State Management** | Global JS variables | **Custom React Hooks (`useVoiceAgent`, `useAudioRecorder`)** |
 | **Type Safety** | None (dynamic JS) | **Strict TypeScript contracts for all WS payloads** |
 | **Audio Visualizer** | Simple CSS pulse | **Real-time Web Audio API frequency waveform** |
-| **Backend** | FastAPI + LangGraph | **FastAPI + LangGraph (Identical AI Pipeline)** |
+| **Unified Runner** | Separate manual terminals | **Single command (`npm run dev`) or 1-click `start.bat`** |
 
 ---
 
@@ -71,44 +71,24 @@ Built by **Kalash Jain**.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 1-Command Quick Start
 
-### 1. Start Backend
+### Start Everything (Backend + Frontend):
 
-Open PowerShell in the `backend` directory:
+From the project root:
 
-```powershell
-cd backend
-
-# Create virtual environment and install dependencies
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt   # or uv sync
-
-# Start FastAPI server
-$env:PYTHONUTF8=1
-.\.venv\Scripts\python.exe -m uvicorn app.server:app --reload
-```
-
-Backend will be active at: `http://localhost:8000`
-
----
-
-### 2. Start Frontend
-
-Open another PowerShell window in the `frontend` directory:
-
-```powershell
-cd frontend
-
-# Install node dependencies
-npm install
-
-# Start Vite dev server
+```bash
 npm run dev
 ```
 
-Frontend will open at: **`http://localhost:3000`**
+*(OR simply double-click **`start.bat`** in Windows Explorer).*
+
+This single command automatically:
+- Detects the backend virtual environment Python (`backend/.venv/Scripts/python.exe`).
+- Sets `PYTHONUTF8=1` to prevent emoji crashes.
+- Starts FastAPI backend on `http://localhost:8000`.
+- Starts React + Vite frontend on `http://localhost:3000`.
+- Forwards WebSocket `/ws` and REST `/api` calls seamlessly.
 
 ---
 
@@ -116,6 +96,10 @@ Frontend will open at: **`http://localhost:3000`**
 
 ```
 voxagent-react/
+├── start.bat                 # 1-click Windows runner
+├── run-dev.js                # Unified process launcher (Backend + Frontend)
+├── package.json              # Root project runner
+│
 ├── backend/
 │   ├── app/
 │   │   ├── agent/            # LangGraph stategraph & intent classification

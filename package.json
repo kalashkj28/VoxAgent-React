@@ -1,0 +1,14 @@
+{
+  "name": "voxagent-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Full-Stack Voice AI Agent with FastAPI + React + TypeScript",
+  "scripts": {
+    "dev": "node run-dev.js",
+    "start": "node run-dev.js",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": ["voice-ai", "fastapi", "react", "typescript", "langgraph", "whisper", "gemini"],
+  "author": "Kalash Jain"
+}
