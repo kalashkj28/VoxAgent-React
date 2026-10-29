@@ -12,7 +12,12 @@ export class KBApiService {
   }
 
   private getEffectiveUrl(): string {
-    if (this.baseUrl) return this.baseUrl;
+    if (this.baseUrl) {
+      if (this.baseUrl.includes('voxagent-fzxj')) {
+        return 'https://voxagent-react.onrender.com';
+      }
+      return this.baseUrl;
+    }
     if (typeof window !== 'undefined') {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       if (!isLocal) {

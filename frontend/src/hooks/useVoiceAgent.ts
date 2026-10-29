@@ -12,16 +12,28 @@ interface UseVoiceAgentProps {
   initialBackendUrl?: string;
 }
 
+const DEFAULT_RENDER_URL = 'https://voxagent-react.onrender.com';
+
 export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
   const [backendUrl, setBackendUrlState] = useState<string>(() => {
     if (initialBackendUrl !== undefined) return initialBackendUrl;
     try {
       const stored = localStorage.getItem('voxagent_backend_url');
-      if (stored !== null) return stored;
+      if (stored !== null) {
+        if (stored.includes('voxagent-fzxj')) {
+          localStorage.setItem('voxagent_backend_url', DEFAULT_RENDER_URL);
+          return DEFAULT_RENDER_URL;
+        }
+        return stored;
+      }
     } catch {
       // Ignore
     }
-    return import.meta.env.VITE_VOXAGENT_BACKEND_URL || '';
+    const envUrl = import.meta.env.VITE_VOXAGENT_BACKEND_URL || '';
+    if (envUrl.includes('voxagent-fzxj')) {
+      return DEFAULT_RENDER_URL;
+    }
+    return envUrl;
   });
 
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
@@ -68,10 +80,13 @@ export function useVoiceAgent({ initialBackendUrl }: UseVoiceAgentProps = {}) {
   // Derive WebSocket base URL
   const getWsBaseUrl = useCallback(() => {
     let target = backendUrl;
+    if (target.includes('voxagent-fzxj')) {
+      target = DEFAULT_RENDER_URL;
+    }
     if (!target && typeof window !== 'undefined') {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       if (!isLocal) {
-        target = 'https://voxagent-react.onrender.com';
+        target = DEFAULT_RENDER_URL;
       }
     }
     if (target) {

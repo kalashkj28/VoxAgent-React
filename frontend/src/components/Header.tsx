@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ConnectionState } from '../types/voxagent';
 import { Settings, Radio, Mic, Volume2, Sparkles, Server, Cloud } from 'lucide-react';
 
@@ -16,7 +16,16 @@ export const Header: React.FC<HeaderProps> = ({
   onReconnect,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const [tempUrl, setTempUrl] = useState(backendUrl);
+  const [tempUrl, setTempUrl] = useState(
+    backendUrl.includes('voxagent-fzxj') ? 'https://voxagent-react.onrender.com' : backendUrl
+  );
+
+  useEffect(() => {
+    if (backendUrl.includes('voxagent-fzxj')) {
+      onUpdateBackendUrl('https://voxagent-react.onrender.com');
+      setTempUrl('https://voxagent-react.onrender.com');
+    }
+  }, [backendUrl, onUpdateBackendUrl]);
 
   const getStatusBadge = () => {
     switch (connectionState) {
