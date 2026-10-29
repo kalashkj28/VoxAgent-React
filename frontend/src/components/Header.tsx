@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => selectPreset('https://voxagent-fzxj.onrender.com')}
+                onClick={() => selectPreset('https://voxagent-react.onrender.com')}
                 className="py-1.5 px-2.5 rounded-xl text-[11px] font-semibold glass-card hover:bg-purple-50/70 hover:text-purple-600 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Cloud className="w-3.5 h-3.5 text-purple-500" />
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="https://voxagent-fzxj.onrender.com"
+                  placeholder="https://voxagent-react.onrender.com"
                   value={tempUrl}
                   onChange={(e) => setTempUrl(e.target.value)}
                   className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"

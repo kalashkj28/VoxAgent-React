@@ -16,7 +16,7 @@ export class KBApiService {
     if (typeof window !== 'undefined') {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       if (!isLocal) {
-        return 'https://voxagent-fzxj.onrender.com';
+        return 'https://voxagent-react.onrender.com';
       }
     }
     return '';
