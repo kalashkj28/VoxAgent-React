@@ -112,44 +112,132 @@ def search_knowledge(query: str) -> dict:
         "sources": [r["source"] for r in results]
     }
 
-from app.memory.database import memory
+bookings = {}
+booking_counter = 0
 
-def book_appointment(date: str, time: str, purpose: str) -> dict:
-    """Book a new appointment."""
-    booking_id = memory.add_booking(date, time, purpose)
+def book_appointment(date: str, time: str, purpose: str = "General") -> dict:
+    """Book an appointment."""
+    global booking_counter
+    booking_counter += 1
+    booking_id = f"BK-{booking_counter:03d}"
+    
+    bookings[booking_id] = {
+        "date": date,
+        "time": time,
+        "purpose": purpose,
+        "status": "confirmed"
+    }
+    
     return {
-        "status": "success",
+        "status": "confirmed",
         "booking_id": booking_id,
-        "message": f"Appointment booked for {date} at {time} for {purpose}."
+        "date": date,
+        "time": time,
+        "purpose": purpose,
+        "message": f"Appointment booked! ID: {booking_id}"
     }
 
 def get_bookings() -> dict:
-    """Get all existing appointments."""
-    bookings = memory.get_all_bookings()
+    """Show all bookings."""
     if not bookings:
-        return {"message": "No appointments found."}
-    return {"bookings": bookings}
+        return {"message": "No bookings currently.", "bookings": []}
+    
+    return {
+        "total": len(bookings),
+        "bookings": [
+            {"id": bid, **details} for bid, details in bookings.items()
+        ]
+    }
 
-def update_booking(booking_id: int, date: str, time: str, purpose: str) -> dict:
-    """Reschedule or update an existing appointment."""
-    success = memory.update_booking(booking_id, date, time, purpose)
-    if success:
-        return {"status": "success", "message": f"Booking #{booking_id} updated."}
-    return {"status": "error", "message": f"Booking #{booking_id} not found."}
+def update_booking(booking_id: str, date: str = "", time: str = "", purpose: str = "") -> dict:
+    """Reschedule or update a booking."""
+    bid = str(booking_id).upper().strip()
+    if not bid.startswith("BK-") and bid.isdigit():
+        bid = f"BK-{int(bid):03d}"
+    
+    if bid not in bookings:
+        return {"error": f"Booking '{bid}' not found. Check 'get_bookings' first."}
+    
+    if date:
+        bookings[bid]["date"] = date
+    if time:
+        bookings[bid]["time"] = time
+    if purpose:
+        bookings[bid]["purpose"] = purpose
+    
+    return {
+        "status": "updated",
+        "booking_id": bid,
+        **bookings[bid],
+        "message": f"Booking {bid} updated successfully!"
+    }
 
-def delete_booking(booking_id: int) -> dict:
-    """Cancel an appointment."""
-    success = memory.delete_booking(booking_id)
-    if success:
-        return {"status": "success", "message": f"Booking #{booking_id} cancelled."}
-    return {"status": "error", "message": f"Booking #{booking_id} not found."}
+def cancel_booking(booking_id: str) -> dict:
+    """Cancel a booking."""
+    bid = str(booking_id).upper().strip()
+    if not bid.startswith("BK-") and bid.isdigit():
+        bid = f"BK-{int(bid):03d}"
+    
+    if bid not in bookings:
+        return {"error": f"Booking '{bid}' not found."}
+    
+    cancelled = bookings.pop(bid)
+    return {
+        "status": "cancelled",
+        "booking_id": bid,
+        **cancelled,
+        "message": f"Booking {bid} cancelled!"
+    }
 
-def get_customer_profile(phone: str = "", name: str = "") -> dict:
-    """Look up customer details from CRM."""
-    profile = memory.get_profile(phone=phone, name=name)
-    if profile:
-        return {"status": "found", "customer": profile}
-    return {"status": "not_found", "message": "Customer profile not found."}
+# Alias delete_booking to cancel_booking
+delete_booking = cancel_booking
+
+CRM_DATABASE = {
+    "C001": {
+        "name": "Rahul Sharma", "phone": "9876543210", "email": "rahul@example.com",
+        "plan": "Premium", "status": "Active", "since": "Jan 2023",
+        "last_payment": "Aug 2026", "pending_amount": "Rs 0"
+    },
+    "C002": {
+        "name": "Priya Singh", "phone": "9876543211", "email": "priya@example.com",
+        "plan": "Basic", "status": "Active", "since": "Mar 2024",
+        "last_payment": "Jul 2026", "pending_amount": "Rs 499"
+    },
+    "C003": {
+        "name": "Amit Kumar", "phone": "9876543212", "email": "amit@example.com",
+        "plan": "Enterprise", "status": "Active", "since": "Jun 2022",
+        "last_payment": "Aug 2026", "pending_amount": "Rs 0"
+    },
+    "C004": {
+        "name": "Neha Gupta", "phone": "9876543213", "email": "neha@example.com",
+        "plan": "Premium", "status": "Inactive", "since": "Dec 2023",
+        "last_payment": "May 2026", "pending_amount": "Rs 1999"
+    },
+    "C005": {
+        "name": "Vikram Patel", "phone": "9876543214", "email": "vikram@example.com",
+        "plan": "Basic", "status": "Active", "since": "Sep 2024",
+        "last_payment": "Aug 2026", "pending_amount": "Rs 0"
+    },
+}
+
+def lookup_customer(query: str = "", phone: str = "", name: str = "") -> dict:
+    """Search CRM for customer by ID, name, or phone."""
+    search_term = (query or phone or name or "").lower().strip()
+    
+    if search_term.upper() in CRM_DATABASE:
+        customer = CRM_DATABASE[search_term.upper()]
+        return {"found": True, "customer_id": search_term.upper(), **customer}
+    
+    for cid, data in CRM_DATABASE.items():
+        if (search_term in data["name"].lower() or 
+            search_term in data["phone"] or
+            search_term in data.get("email", "").lower()):
+            return {"found": True, "customer_id": cid, **data}
+    
+    return {"found": False, "message": f"No customer found for '{search_term}'."}
+
+# Alias get_customer_profile to lookup_customer
+get_customer_profile = lookup_customer
 
 TOOL_REGISTRY = [
     {
@@ -260,5 +348,7 @@ TOOL_FUNCTIONS = {
     "get_bookings": get_bookings,
     "update_booking": update_booking,
     "delete_booking": delete_booking,
+    "cancel_booking": cancel_booking,
     "get_customer_profile": get_customer_profile,
+    "lookup_customer": lookup_customer,
 }
