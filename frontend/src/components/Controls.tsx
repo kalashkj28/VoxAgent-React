@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Square, Repeat, Volume2, VolumeX } from 'lucide-react';
+import { Mic, Square, Repeat, Volume2, VolumeX, Gauge } from 'lucide-react';
 import { Visualizer } from './Visualizer';
 
 interface ControlsProps {
@@ -7,9 +7,11 @@ interface ControlsProps {
   audioLevel: number;
   autoMode: boolean;
   ttsEnabled: boolean;
+  playbackSpeed?: number;
   onToggleRecording: () => void;
   onToggleAutoMode: () => void;
   onToggleTTS: () => void;
+  onCycleSpeed?: () => void;
   micError: string | null;
 }
 
@@ -18,9 +20,11 @@ export const Controls: React.FC<ControlsProps> = ({
   audioLevel,
   autoMode,
   ttsEnabled,
+  playbackSpeed = 1,
   onToggleRecording,
   onToggleAutoMode,
   onToggleTTS,
+  onCycleSpeed,
   micError,
 }) => {
   return (
@@ -49,7 +53,7 @@ export const Controls: React.FC<ControlsProps> = ({
               ? 'bg-rose-500 text-white shadow-rose-500/30 scale-105'
               : 'glass-card border-2 border-blue-500/30 text-blue-600 hover:border-blue-500 hover:bg-blue-50/50 shadow-blue-500/10 hover:scale-105'
           }`}
-          title={isRecording ? 'Click to stop recording' : 'Click to start talking'}
+          title={isRecording ? 'Click to stop recording (or press Space)' : 'Click to start talking (or press Space)'}
         >
           {isRecording ? (
             <Square className="w-6 h-6 fill-current animate-pulse" />
@@ -75,10 +79,12 @@ export const Controls: React.FC<ControlsProps> = ({
       )}
 
       {/* Mode Toggles */}
-      <div className="w-full flex gap-2">
+      <div className="w-full grid grid-cols-3 gap-1.5">
+        {/* Auto Mode */}
         <button
           onClick={onToggleAutoMode}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          title="Hands-free continuous conversation loop"
+          className={`py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
             autoMode
               ? 'bg-emerald-50 text-emerald-600 border border-emerald-300 shadow-sm'
               : 'glass-card text-gray-600 hover:bg-gray-100/50'
@@ -88,9 +94,11 @@ export const Controls: React.FC<ControlsProps> = ({
           <span>Auto</span>
         </button>
 
+        {/* TTS Toggle */}
         <button
           onClick={onToggleTTS}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          title="Toggle audio response"
+          className={`py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
             ttsEnabled
               ? 'bg-emerald-50 text-emerald-600 border border-emerald-300 shadow-sm'
               : 'glass-card text-gray-400 hover:bg-gray-100/50'
@@ -108,11 +116,22 @@ export const Controls: React.FC<ControlsProps> = ({
             </>
           )}
         </button>
+
+        {/* Speed Toggle */}
+        <button
+          onClick={onCycleSpeed}
+          title="Cycle speech playback speed (1x, 1.25x, 1.5x)"
+          className="glass-card py-2 px-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50/70 hover:text-blue-600 transition-all cursor-pointer flex items-center justify-center gap-1"
+        >
+          <Gauge className="w-3.5 h-3.5 text-blue-500" />
+          <span>{playbackSpeed}x</span>
+        </button>
       </div>
 
-      <div className="w-full flex justify-between text-[9px] text-gray-400 mt-2 px-1 text-center">
-        <span>Hands-free loop</span>
-        <span>Audio response</span>
+      <div className="w-full grid grid-cols-3 text-[9px] text-gray-400 mt-2 px-1 text-center">
+        <span>Hands-free</span>
+        <span>Audio</span>
+        <span>Speed</span>
       </div>
     </div>
   );

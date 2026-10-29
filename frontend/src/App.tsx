@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useVoiceAgent } from './hooks/useVoiceAgent';
 import { Header } from './components/Header';
 import { ChatPanel } from './components/ChatPanel';
@@ -15,6 +16,7 @@ export function App() {
     metrics,
     ttsEnabled,
     autoMode,
+    playbackSpeed,
     isRecording,
     audioLevel,
     micError,
@@ -23,10 +25,36 @@ export function App() {
     toggleRecording,
     toggleAutoMode,
     toggleTTS,
+    cyclePlaybackSpeed,
+    replayMessageAudio,
+    clearMessages,
+    exportChat,
     sendTextMessage,
     interrupt,
     reconnect,
   } = useVoiceAgent();
+
+  // Global Keyboard Shortcuts (Space for mic, Escape for stop)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input or textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleRecording();
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        interrupt();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleRecording, interrupt]);
 
   return (
     <div className="relative h-screen max-h-screen w-screen overflow-hidden flex flex-col p-2.5 sm:p-4 bg-[#f0f2f5]">
@@ -67,6 +95,9 @@ export function App() {
               isStreaming={isStreaming}
               onSendMessage={sendTextMessage}
               onInterrupt={interrupt}
+              onReplayAudio={replayMessageAudio}
+              onClearChat={clearMessages}
+              onExportChat={exportChat}
               disabled={connectionState === 'disconnected'}
             />
           </section>
@@ -78,9 +109,11 @@ export function App() {
               audioLevel={audioLevel}
               autoMode={autoMode}
               ttsEnabled={ttsEnabled}
+              playbackSpeed={playbackSpeed}
               onToggleRecording={toggleRecording}
               onToggleAutoMode={toggleAutoMode}
               onToggleTTS={toggleTTS}
+              onCycleSpeed={cyclePlaybackSpeed}
               micError={micError}
             />
 

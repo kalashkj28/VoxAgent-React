@@ -6,6 +6,7 @@ export interface ChatMessage {
   text: string;
   timestamp: number;
   isStreaming?: boolean;
+  audioBlob?: Blob;
 }
 
 export interface LatencyMetrics {

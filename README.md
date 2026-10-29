@@ -67,6 +67,40 @@ Built by **[Kalash Jain](https://github.com/kalashkj28)**.
 
 ---
 
+## 🌟 Bonus Features & UX Innovations (Beyond the Assignment)
+
+Designed from a real user's perspective to eliminate friction, boost accessibility, and provide an intuitive conversational flow:
+
+1. **Interactive Suggestion Chips ("Try Asking..."):**
+   * *Problem Solved:* Solves "blank page syndrome" where first-time users or evaluators don't know what tools the agent supports.
+   * *Enhancement:* One-click prompt chips (Weather, 3 PM Consultation, AI News Search, Tech Stack) for instant discovery.
+
+2. **Variable Voice Playback Speed (1x / 1.25x / 1.5x):**
+   * *Problem Solved:* Default neural speech pacing can feel slow for power users who want rapid responses.
+   * *Enhancement:* Dedicated speed cycling button that dynamically modulates playback rate in real time.
+
+3. **Message Audio Replay:**
+   * *Problem Solved:* In noisy environments or long answers, users often miss parts of the audio and had to re-ask.
+   * *Enhancement:* Dedicated "🔊 Replay" button on every assistant bubble that replays the cached audio response.
+
+4. **1-Click Conversation Export (.md):**
+   * *Problem Solved:* Users lose meeting schedules, research summaries, and chat transcripts when closing the browser.
+   * *Enhancement:* Instantly downloads a formatted Markdown transcript (`voxagent-chat-[date].md`) with roles, timestamps, and latency metrics.
+
+5. **Message Copy to Clipboard:**
+   * *Problem Solved:* Manual highlighting on glassmorphism bubbles is inconvenient.
+   * *Enhancement:* One-click copy with smooth checkmark feedback for easy extraction.
+
+6. **Session Reset / New Chat:**
+   * *Problem Solved:* Starting a new topic without page reload.
+   * *Enhancement:* "New Chat" button cleanly resets conversation history and welcome prompt.
+
+7. **Desktop Keyboard Shortcuts (Accessibility):**
+   * *Spacebar:* Press to toggle microphone recording (when not focused on text input).
+   * *Escape:* Press to immediately interrupt AI speech and voice synthesis.
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend (`/frontend`)
