@@ -67,7 +67,7 @@ Built by **[Kalash Jain](https://github.com/kalashkj28)**.
 
 ---
 
-## 🌟 Bonus Features & UX Innovations (Beyond the Assignment)
+## 🌟 Bonus Features & UX Innovations
 
 Designed from a real user's perspective to eliminate friction, boost accessibility, and provide an intuitive conversational flow:
 
