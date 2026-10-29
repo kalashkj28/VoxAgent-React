@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useVoiceAgent } from './hooks/useVoiceAgent';
 import { Header } from './components/Header';
 import { ChatPanel } from './components/ChatPanel';
@@ -6,8 +6,11 @@ import { Controls } from './components/Controls';
 import { LatencyHUD } from './components/LatencyHUD';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { Watermark } from './components/Watermark';
+import { MessageSquare, Sliders } from 'lucide-react';
 
 export function App() {
+  const [mobileTab, setMobileTab] = useState<'chat' | 'tools'>('chat');
+
   const {
     connectionState,
     messages,
@@ -57,7 +60,7 @@ export function App() {
   }, [toggleRecording, interrupt]);
 
   return (
-    <div className="relative h-screen max-h-screen w-screen overflow-hidden flex flex-col p-2.5 sm:p-4 bg-[#f0f2f5]">
+    <div className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col p-2 sm:p-4 bg-[#f0f2f5]">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-1/4 left-1/5 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
@@ -77,7 +80,8 @@ export function App() {
 
       {/* Main Container */}
       <div className="relative z-10 max-w-6xl w-full mx-auto flex flex-col flex-1 h-full min-h-0 overflow-hidden">
-        <div className="flex-shrink-0">
+        {/* Sticky Header */}
+        <div className="flex-shrink-0 z-20 w-full">
           <Header
             connectionState={connectionState}
             backendUrl={backendUrl}
@@ -86,15 +90,47 @@ export function App() {
           />
         </div>
 
+        {/* Mobile View Switcher (Tabs for Chat vs Voice & Tools) */}
+        <div className="flex lg:hidden items-center gap-1.5 p-1 mb-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-xs flex-shrink-0">
+          <button
+            onClick={() => setMobileTab('chat')}
+            className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              mobileTab === 'chat'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100/50'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Chat</span>
+          </button>
+          <button
+            onClick={() => setMobileTab('tools')}
+            className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              mobileTab === 'tools'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100/50'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Voice & Tools</span>
+          </button>
+        </div>
+
         <main className="grid grid-cols-1 lg:grid-cols-[1fr_330px] gap-3.5 flex-1 min-h-0 overflow-hidden pb-1">
           {/* Left Chat Window */}
-          <section className="flex flex-col h-full min-h-0 overflow-hidden">
+          <section
+            className={`flex-col h-full min-h-0 overflow-hidden ${
+              mobileTab === 'chat' ? 'flex' : 'hidden lg:flex'
+            }`}
+          >
             <ChatPanel
               messages={messages}
               isTyping={isTyping}
               isStreaming={isStreaming}
               onSendMessage={sendTextMessage}
               onInterrupt={interrupt}
+              onToggleRecording={toggleRecording}
+              isRecording={isRecording}
               onReplayAudio={replayMessageAudio}
               onClearChat={clearMessages}
               onExportChat={exportChat}
@@ -103,7 +139,11 @@ export function App() {
           </section>
 
           {/* Right Sidebar */}
-          <aside className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar gap-3 pr-1">
+          <aside
+            className={`flex-col h-full min-h-0 overflow-y-auto custom-scrollbar gap-3 pr-1 ${
+              mobileTab === 'tools' ? 'flex' : 'hidden lg:flex'
+            }`}
+          >
             <Controls
               isRecording={isRecording}
               audioLevel={audioLevel}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ConnectionState } from '../types/voxagent';
-import { Settings, Radio, Mic, Volume2, Sparkles, Server, Cloud } from 'lucide-react';
+import { Settings, Radio, Mic, Volume2, Sparkles, Server, Cloud, RefreshCw } from 'lucide-react';
 
 interface HeaderProps {
   connectionState: ConnectionState;
@@ -31,37 +31,37 @@ export const Header: React.FC<HeaderProps> = ({
     switch (connectionState) {
       case 'connected':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Connected
+            <span>Connected</span>
           </span>
         );
       case 'recording':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-red-50 text-red-600 border border-red-200">
             <Mic className="w-3.5 h-3.5 animate-pulse" />
-            Listening...
+            <span>Listening...</span>
           </span>
         );
       case 'processing':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200">
             <Sparkles className="w-3.5 h-3.5 animate-spin" />
-            Thinking...
+            <span>Thinking...</span>
           </span>
         );
       case 'speaking':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200">
             <Volume2 className="w-3.5 h-3.5 animate-bounce" />
-            Speaking...
+            <span>Speaking...</span>
           </span>
         );
       case 'connecting':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-600 border border-yellow-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-yellow-50 text-yellow-600 border border-yellow-200">
             <Radio className="w-3.5 h-3.5 animate-pulse" />
-            Connecting...
+            <span>Connecting...</span>
           </span>
         );
       case 'disconnected':
@@ -69,10 +69,10 @@ export const Header: React.FC<HeaderProps> = ({
         return (
           <button
             onClick={onReconnect}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
           >
             <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-            Disconnected (Click to retry)
+            <span>Disconnected</span>
           </button>
         );
     }
@@ -91,33 +91,43 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="flex items-center justify-between pb-4 mb-4 border-b border-black/5">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-          <Mic className="w-5 h-5" />
+    <header className="flex items-center justify-between pb-2.5 sm:pb-4 mb-2 sm:mb-3 border-b border-black/5 flex-shrink-0 w-full">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 flex-shrink-0">
+          <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
               VoxAgent
             </h1>
-            <span className="text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">
-              React + TS
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-semibold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+              React+TS
             </span>
           </div>
-          <p className="text-xs text-gray-500 font-medium">Real-Time Voice AI Agent</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 font-medium hidden xs:block">Real-Time Voice AI</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 relative">
+      <div className="flex items-center gap-1.5 sm:gap-2 relative flex-shrink-0">
         {getStatusBadge()}
 
         <button
+          onClick={() => {
+            onReconnect();
+          }}
+          className="p-1.5 sm:p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-black/5 transition-colors cursor-pointer"
+          title="Reconnect WebSocket"
+        >
+          <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        </button>
+
+        <button
           onClick={() => setShowSettings(!showSettings)}
-          className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-black/5 transition-colors cursor-pointer"
+          className="p-1.5 sm:p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-black/5 transition-colors cursor-pointer"
           title="Backend settings"
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </button>
 
         {showSettings && (

@@ -18,6 +18,8 @@ interface ChatPanelProps {
   isStreaming: boolean;
   onSendMessage: (text: string) => void;
   onInterrupt: () => void;
+  onToggleRecording?: () => void;
+  isRecording?: boolean;
   onReplayAudio?: (message: ChatMessage) => void;
   onClearChat?: () => void;
   onExportChat?: () => void;
@@ -30,19 +32,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   isStreaming,
   onSendMessage,
   onInterrupt,
+  onToggleRecording,
+  isRecording = false,
   onReplayAudio,
   onClearChat,
   onExportChat,
   disabled = false,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll on new messages or typing changes
+  // Auto-scroll on new messages or typing changes strictly inside the chat container
+  // Using scrollTop avoids calling window.scrollIntoView which pushes the Header off-screen on mobile
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
-    } else if (scrollRef.current) {
+    if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping, isStreaming]);
@@ -52,7 +54,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   return (
     <div className="flex flex-col h-full min-h-0 glass-panel rounded-3xl overflow-hidden shadow-lg border border-white/60">
       {/* Chat Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200/50 bg-white/40 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 border-b border-gray-200/50 bg-white/40 flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-xs font-bold text-gray-700 tracking-wide">Live Conversation</span>
@@ -89,7 +91,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       {/* Scrollable messages container */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 custom-scrollbar space-y-1"
+        className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-1"
       >
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} onReplay={onReplayAudio} />
@@ -108,13 +110,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             </div>
           </div>
         )}
-
-        {/* Dummy div to scroll to */}
-        <div ref={messagesEndRef} className="h-1" />
       </div>
 
       {/* Interactive Suggestion Chips (Prompt Starters) */}
-      <div className="px-3 pt-2 pb-1 border-t border-gray-100/60 bg-white/30 flex-shrink-0 overflow-x-auto custom-scrollbar flex items-center gap-1.5">
+      <div className="px-2.5 sm:px-3 pt-2 pb-1 border-t border-gray-100/60 bg-white/30 flex-shrink-0 overflow-x-auto custom-scrollbar flex items-center gap-1.5">
         <span className="text-[10px] uppercase font-bold text-gray-400 flex items-center gap-1 mr-1 flex-shrink-0">
           <Sparkles className="w-3 h-3 text-amber-500" />
           <span>Try:</span>
@@ -124,7 +123,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             key={idx}
             onClick={() => onSendMessage(item.query)}
             disabled={disabled || isTyping || isStreaming}
-            className="flex-shrink-0 inline-flex items-center gap-1 py-1 px-2.5 rounded-full text-[11px] font-medium bg-white/80 border border-gray-200/80 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+            className="flex-shrink-0 inline-flex items-center gap-1 py-1 px-2.5 rounded-full text-[11px] font-medium bg-white/80 border border-gray-200/80 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs active:scale-95"
           >
             <span>{item.icon}</span>
             <span>{item.label}</span>
@@ -137,6 +136,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         <ChatInput
           onSendMessage={onSendMessage}
           onInterrupt={onInterrupt}
+          onToggleRecording={onToggleRecording}
+          isRecording={isRecording}
           disabled={disabled}
           isBusy={isTyping || isStreaming}
         />
